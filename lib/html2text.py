@@ -449,18 +449,34 @@ class HTML2Text(HTMLParser.HTMLParser):
                 if start and google_has_height(tag_style):
                     self.p()
                 else:
-                    self.soft_br()
+                    self.br()
             else:
                 if start == 1:
-                    if attrs and attrs.get("title") != "footnotes":
+                    if attrs and '-en-codeblock:true' in attrs.get("style"):
+                        self.o("```")
+                        self.block_stack.append("encodeblock")
+                        self.pre = "encodeblock"
+                        self.startpre = 1
+                    elif self.pre == "encodeblock":
+                        self.block_stack.append(False)
+                    elif attrs and attrs.get("title") != "footnotes":
                         self.block_stack.append(True)
                         self.o(tag_str(tag+' markdown="1"', attrs, start))
+                        self.p()
                     else:
                         self.block_stack.append(False)
+                        self.p()
                 elif start == 0:
-                    if self.block_stack.pop():
+                    t = self.block_stack.pop()
+                    if t == "encodeblock":
+                        self.pre = 0
+                        self.o("```")
+                    elif t == True:
                         self.o('</%s>' % tag)
-                self.p()
+                    elif self.pre:
+                        self.pbr()
+                    else:
+                        self.p()
 
         if tag == 'p':
             if self.google_doc:
