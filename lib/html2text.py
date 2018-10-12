@@ -452,7 +452,10 @@ class HTML2Text(HTMLParser.HTMLParser):
                     self.br()
             else:
                 if start == 1:
-                    if attrs and '-en-codeblock:true' in attrs.get("style"):
+                    if attrs and '-en-paragraph:true' in attrs.get("style"):
+                        self.block_stack.append(False)
+                        self.p()
+                    elif attrs and '-en-codeblock:true' in attrs.get("style"):
                         self.o("```")
                         self.block_stack.append("encodeblock")
                         self.pre = "encodeblock"
