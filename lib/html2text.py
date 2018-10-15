@@ -444,6 +444,11 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.inheader = False
                 return # prevent redundant emphasis marks on headers
 
+        if attrs and "-evernote-webclip" in attrs.get("style", "") and start:
+            self.out('\n\n'+tag_str(tag, attrs, start))
+            self.verbatim = [tag, 1]
+            return
+
         if tag == 'div':
             if self.google_doc:
                 if start and google_has_height(tag_style):
@@ -460,7 +465,7 @@ class HTML2Text(HTMLParser.HTMLParser):
                         self.block_stack.append("encodeblock")
                         self.pre = "encodeblock"
                         self.startpre = 1
-                    elif self.pre == "encodeblock":
+                    elif self.pre:
                         self.block_stack.append(False)
                     elif attrs and attrs.get("title") != "footnotes":
                         self.block_stack.append(True)
@@ -757,7 +762,9 @@ class HTML2Text(HTMLParser.HTMLParser):
             bq = (">" * self.blockquote)
             if not (force and data and data[0] == ">") and self.blockquote: bq += " "
 
-            if self.pre == "indent":
+            if self.verbatim:
+                data = data.replace("\n", "\n ")
+            elif self.pre == "indent":
                 if not self.list:
                     bq += "    "
                 #else: list content is already partially indented
