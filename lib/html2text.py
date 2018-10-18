@@ -445,7 +445,10 @@ class HTML2Text(HTMLParser.HTMLParser):
                 return # prevent redundant emphasis marks on headers
 
         if attrs and "-evernote-webclip" in attrs.get("style", "") and start:
-            self.out('\n\n'+tag_str(tag, attrs, start))
+            if start:
+                self.out('\n\n'+tag_str(tag, attrs, start)+'\n ')
+            else:
+                self.out('\n'+tag_str(tag, attrs, start)+'\n\n')
             self.verbatim = [tag, 1]
             return
 
