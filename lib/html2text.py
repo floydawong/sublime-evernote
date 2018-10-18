@@ -115,7 +115,7 @@ def tag_str(tag, attrs, start):
     if start:
         attr_str = ""
         for k in attrs:
-            attr_str += (' %s="%s"' % (k, attrs[k]))
+            attr_str += (' %s="%s"' % (k, attrs[k].replace('"',"'")))
         return "<%s%s%s>" % (tag, attr_str, '/' if start == 2 else '')
     else:
         return "</%s>" % tag
