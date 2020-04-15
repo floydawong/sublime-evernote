@@ -1401,6 +1401,23 @@ class CreateNotebookCommand(EvernoteDoWindow):
             on_notebook, None, None)
 
 
+class SwitchUserTokenCommand(EvernoteDoWindow):
+    
+    def run(self):
+        self.settings = sublime.load_settings(EVERNOTE_SETTINGS)
+        switch_user_token = self.settings.get("switch_user_token")
+        items = [x for x in switch_user_token.keys()]
+
+        def on_select(index):
+            config = switch_user_token.get(items[index])
+            noteStoreUrl = config.get("noteStoreUrl")
+            token = config.get("token")
+            self.settings.set("noteStoreUrl", noteStoreUrl)
+            self.settings.set("token", token)
+            sublime.save_settings(EVERNOTE_SETTINGS)
+
+        self.window.show_quick_panel(items, on_select)
+
 
 class ClearEvernoteCacheCommand(sublime_plugin.WindowCommand):
 

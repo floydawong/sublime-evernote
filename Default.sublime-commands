@@ -35,5 +35,6 @@
     { "command": "evernote_show_attachments", "caption": "Evernote: Show Attachments…" },
     { "command": "evernote_delete_attachment", "caption": "Evernote: Delete Attachment…" },
     { "command": "revert_to_evernote", "caption": "Evernote: Revert to version on Evernote" },
-    { "command": "clear_evernote_cache", "caption": "Evernote: Clear Notebook Cache" }
+    { "command": "clear_evernote_cache", "caption": "Evernote: Clear Notebook Cache" },
+    { "command": "switch_user_token", "caption": "Evernote: Switch User Token" }
 ]
