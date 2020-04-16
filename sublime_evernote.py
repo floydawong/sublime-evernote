@@ -761,7 +761,11 @@ class OpenEvernoteNoteCommand(EvernoteDoWindow):
     def do_run(self, note_guid=None, by_searching=None,
                from_notebook=None, with_tags=None,
                order=None, ascending=None, max_notes=None, **kwargs):
+
+        def sort_notebooks(notebook):
+            return notebook.name
         notebooks = self.get_notebooks()
+        notebooks.sort(key=sort_notebooks)
 
         search_args = {}
 
