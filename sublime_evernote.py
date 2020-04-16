@@ -1405,10 +1405,13 @@ class SwitchUserTokenCommand(EvernoteDoWindow):
     
     def run(self):
         self.settings = sublime.load_settings(EVERNOTE_SETTINGS)
-        switch_user_token = self.settings.get("switch_user_token")
+        switch_user_token = self.settings.get("switch_user_token", {})
         items = [x for x in switch_user_token.keys()]
+        items.sort()
 
         def on_select(index):
+            if index < 0:
+                return
             config = switch_user_token.get(items[index])
             noteStoreUrl = config.get("noteStoreUrl")
             token = config.get("token")
