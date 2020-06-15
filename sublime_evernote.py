@@ -761,7 +761,11 @@ class OpenEvernoteNoteCommand(EvernoteDoWindow):
     def do_run(self, note_guid=None, by_searching=None,
                from_notebook=None, with_tags=None,
                order=None, ascending=None, max_notes=None, **kwargs):
+
+        def sort_notebooks(notebook):
+            return notebook.name
         notebooks = self.get_notebooks()
+        notebooks.sort(key=sort_notebooks)
 
         search_args = {}
 
@@ -1400,6 +1404,90 @@ class CreateNotebookCommand(EvernoteDoWindow):
             "Notebook name (required):", "",
             on_notebook, None, None)
 
+
+class SwitchUserTokenCommand(EvernoteDoWindow):
+    
+    def run(self):
+        self.settings = sublime.load_settings(EVERNOTE_SETTINGS)
+        switch_user_token = self.settings.get("switch_user_token", {})
+        items = [x for x in switch_user_token.keys()]
+        items.sort()
+
+        def on_select(index):
+            if index < 0:
+                return
+            config = switch_user_token.get(items[index])
+            noteStoreUrl = config.get("noteStoreUrl")
+            token = config.get("token")
+            self.settings.set("noteStoreUrl", noteStoreUrl)
+            self.settings.set("token", token)
+            sublime.save_settings(EVERNOTE_SETTINGS)
+            self.clear_cache()
+
+        self.window.show_quick_panel(items, on_select)
+
+
+class RemoveUserTokenCommand(EvernoteDoWindow):
+
+    def run(self):
+        self.settings = sublime.load_settings(EVERNOTE_SETTINGS)
+        switch_user_token = self.settings.get("switch_user_token", {})
+        items = [x for x in switch_user_token.keys()]
+        items.sort()
+
+        def on_select(index):
+            if index < 0:
+                return
+            account = items[index]
+            switch_user_token.pop(account)
+            self.settings.set("switch_user_token", switch_user_token)
+            sublime.save_settings(EVERNOTE_SETTINGS)
+
+        self.window.show_quick_panel(items, on_select)
+
+
+class AddUserTokenCommand(EvernoteDoWindow):
+    
+    def run(self):
+        self.settings = sublime.load_settings(EVERNOTE_SETTINGS)
+        self.account = ""
+
+        def __add_account(token, noteStoreUrl):
+            if noteStoreUrl.startswith("https://") and not ssl:
+                LOG("Not using SSL")
+                noteStoreUrl = "http://" + noteStoreUrl[8:]
+
+            switch_user_token = self.settings.get("switch_user_token", {})
+            switch_user_token[self.account] = {
+                "noteStoreUrl": noteStoreUrl,
+                "token": token,
+            }
+            self.settings.set("switch_user_token", switch_user_token)
+            sublime.save_settings(EVERNOTE_SETTINGS)
+
+        def on_token(token):
+            p = self.window.show_input_panel(
+                "NoteStore URL (required):",
+                "",
+                lambda x: __add_account(token, x),
+                None,
+                None,
+            )
+            p.sel().add(sublime.Region(0, p.size()))
+
+        def on_account(account):
+            if len(account) == 0:
+                sublime.error_message("Account cannot be empty!")
+                return
+            self.account = account
+            webbrowser.open_new_tab("https://app.yinxiang.com/api/DeveloperToken.action")
+            self.window.show_input_panel(
+                "Developer Token (required):", "", on_token, None, None
+            )
+
+        self.window.show_input_panel(
+            "Account (Email or Nickname):", "", on_account, None, None
+        )
 
 
 class ClearEvernoteCacheCommand(sublime_plugin.WindowCommand):
