@@ -49,6 +49,8 @@ SUBLIME_EVERNOTE_COMMENT_BEG = "<!-- Sublime:"
 SUBLIME_EVERNOTE_COMMENT_END = "-->"
 DEVELOPER_TOKEN_EVERNOTE = "https://www.evernote.com/api/DeveloperToken.action"
 DEVELOPER_TOKEN_YINXIANG = "https://app.yinxiang.com/api/DeveloperToken.action"
+DEVELOPER_SHARD_EVERNOTE = "www.evernote.com/shard/"
+DEVELOPER_SHARD_YINXIANG = "app.yinxiang.com/shard/"
 
 DEBUG = False
 
@@ -56,6 +58,10 @@ DEBUG = False
 def get_developer_token():
     settings = sublime.load_settings(EVERNOTE_SETTINGS)
     return DEVELOPER_TOKEN_YINXIANG if settings.get('chinese_yinxiang', False) else DEVELOPER_TOKEN_EVERNOTE
+
+def get_developer_shard():
+    settings = sublime.load_settings(EVERNOTE_SETTINGS)
+    return DEVELOPER_SHARD_YINXIANG if settings.get('chinese_yinxiang', False) else DEVELOPER_SHARD_EVERNOTE
 
 def LOG(*args):
     if DEBUG:
@@ -378,7 +384,7 @@ class EvernoteDo():
 
         def __derive_note_store_url(token):
             id = self.get_shard_id(token)
-            url = "www.evernote.com/shard/" + id + "/notestore"
+            url = get_developer_shard() + id + "/notestore"
             if ssl:
                 url = "https://" + url
             else:
