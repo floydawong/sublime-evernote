@@ -47,9 +47,21 @@ USER_AGENT = {'User-Agent': 'SublimeEvernote/' + EVERNOTE_PLUGIN_VERSION}
 EVERNOTE_SETTINGS = "Evernote.sublime-settings"
 SUBLIME_EVERNOTE_COMMENT_BEG = "<!-- Sublime:"
 SUBLIME_EVERNOTE_COMMENT_END = "-->"
+DEVELOPER_TOKEN_EVERNOTE = "https://www.evernote.com/api/DeveloperToken.action"
+DEVELOPER_TOKEN_YINXIANG = "https://app.yinxiang.com/api/DeveloperToken.action"
+DEVELOPER_SHARD_EVERNOTE = "www.evernote.com/shard/"
+DEVELOPER_SHARD_YINXIANG = "app.yinxiang.com/shard/"
 
 DEBUG = False
 
+
+def get_developer_token():
+    settings = sublime.load_settings(EVERNOTE_SETTINGS)
+    return DEVELOPER_TOKEN_YINXIANG if settings.get('chinese_yinxiang', False) else DEVELOPER_TOKEN_EVERNOTE
+
+def get_developer_shard():
+    settings = sublime.load_settings(EVERNOTE_SETTINGS)
+    return DEVELOPER_SHARD_YINXIANG if settings.get('chinese_yinxiang', False) else DEVELOPER_SHARD_EVERNOTE
 
 def LOG(*args):
     if DEBUG:
@@ -372,7 +384,7 @@ class EvernoteDo():
 
         def __derive_note_store_url(token):
             id = self.get_shard_id(token)
-            url = "www.evernote.com/shard/" + id + "/notestore"
+            url = get_developer_shard() + id + "/notestore"
             if ssl:
                 url = "https://" + url
             else:
@@ -394,7 +406,7 @@ class EvernoteDo():
         token = self.token()
         noteStoreUrl = self.settings.get("noteStoreUrl")
         if not token or not noteStoreUrl:
-            webbrowser.open_new_tab("https://www.evernote.com/api/DeveloperToken.action")
+            webbrowser.open_new_tab(get_developer_token())
             self.window.show_input_panel(
                 "Developer Token (required):", token or "",
                 on_token, None, None)
@@ -1480,7 +1492,7 @@ class AddUserTokenCommand(EvernoteDoWindow):
                 sublime.error_message("Account cannot be empty!")
                 return
             self.account = account
-            webbrowser.open_new_tab("https://app.yinxiang.com/api/DeveloperToken.action")
+            webbrowser.open_new_tab(get_developer_token())
             self.window.show_input_panel(
                 "Developer Token (required):", "", on_token, None, None
             )
